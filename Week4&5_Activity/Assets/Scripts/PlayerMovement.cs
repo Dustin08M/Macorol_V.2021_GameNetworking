@@ -15,6 +15,7 @@ public class PlayerMovement : MonoBehaviourPun
     [SerializeField] private float JumpPower = 12f;
 
     private SpriteRenderer _spriteRenderer;
+    //private Transform HpBarPlacement;
     private void Awake()
     {
         _spriteRenderer = GetComponent<SpriteRenderer>();
@@ -22,6 +23,8 @@ public class PlayerMovement : MonoBehaviourPun
 
     private void Start()
     {
+        //HpBarPlacement.transform.position = transform.position; backup in case i need
+        //PhotonNetwork.Instantiate("Prefabs/Player_Hp_Bar", gameObject.transform.position, Quaternion.identity); backup
         var assignment =
             _playerAssignmentColors[Mathf.Min(photonView.Controller.ActorNumber - 1, _playerAssignmentColors.Count - 1)];
         _spriteRenderer.color = assignment;
@@ -29,6 +32,7 @@ public class PlayerMovement : MonoBehaviourPun
 
     private void Update()
     {
+        //HpBarPlacement.transform.position = new Vector2(transform.position.x, transform.position.y + 5f);
         if (photonView.IsMine)
         {
             horizontal = Input.GetAxis("Horizontal");
@@ -49,23 +53,10 @@ public class PlayerMovement : MonoBehaviourPun
     {
         rb.velocity = new Vector2(horizontal * _moveSpeed, rb.velocity.y);
         Vector2 direction = new Vector2(horizontal, 0).normalized;
-
-        /*if (Input.GetKeyUp(KeyCode.Space))
-        {
-            Debug.Log("I'm pressing space");
-            photonView.RPC(nameof(MessageTest), RpcTarget.All, photonView.Controller.NickName);
-        }*/
     }
 
     private bool IsGrounded()
     {
         return Physics2D.OverlapCircle(CheckGround.position, 0.2f, groundLayer);
     }
-
-    /*[PunRPC]
-    private void MessageTest(string playerName)
-    {
-        Debug.Log($"{playerName}:Are you ok?");
-    }*/
-
 }
