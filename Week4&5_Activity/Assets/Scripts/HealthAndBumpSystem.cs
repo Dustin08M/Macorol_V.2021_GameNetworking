@@ -26,6 +26,13 @@ public class HealthAndBumpSystem : MonoBehaviourPun,IPunObservable
             Debug.LogError("Could Not Find A Spawn Gameobject!");
         }
     }
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            transform.position = TpToSpawn.transform.position;
+        }
+    }
     public void OnPhotonSerializeView(PhotonStream stream, PhotonMessageInfo info)
     {
         if (stream.IsWriting)
@@ -41,40 +48,26 @@ public class HealthAndBumpSystem : MonoBehaviourPun,IPunObservable
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Bump"))
+        var PV = collision.gameObject.GetComponent<PhotonView>();
+        if (collision.CompareTag("Bump")&& PhotonView.Get(gameObject).IsMine)
         {
-            Debug.Log("bumped");
-            var PView = collision.gameObject.GetComponent<PhotonView>();
-            if (!PView.IsMine)
-            {
-                var selfpv = GetComponent<PhotonView>();
-                selfpv.RPC(nameof(TakeDamage),PView.Owner);
-            }
-            
+            photonView.RPC("TakeDamage", RpcTarget.Others);
             // Call the TakeDamage() function on the bumped player using a PUN RPC
             //collision.gameObject.GetComponent<PhotonView>().RPC("TakeDamage", RpcTarget.AllBuffered);
         }
     }
 
     [PunRPC]
-    public void TakeDamage(float damage = 25)
+    public void TakeDamage()
     {
-        playerHP -= damage;
+        playerHP -= 25f;
         healthbarColor.fillAmount = playerHP / 100;
 
 
 
-        if (currentHP <= 0)
+        if (currentHP <= 0 && PhotonView.Get(gameObject).IsMine)
         {
-            //BacktoSpawn();
+            currentHP = playerHP;
         }
-
-    }
-
-    private void BacktoSpawn(int viewID)
-    {
-        currentHP = playerHP;
-        GameObject player = PhotonView.Find(viewID).gameObject;
-        player.transform.position = TpToSpawn.transform.position;
     }
 }

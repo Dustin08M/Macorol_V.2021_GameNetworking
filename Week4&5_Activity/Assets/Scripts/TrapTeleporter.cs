@@ -18,7 +18,7 @@ public class TrapTeleporter : MonoBehaviour
     }
 
     [PunRPC]
-    private void TeleportPlayer(int viewID)
+    public void TeleportPlayer(int viewID)
     {
         // Get the game object associated with the given PhotonView ID
         GameObject playerObj = PhotonView.Find(viewID).gameObject;
